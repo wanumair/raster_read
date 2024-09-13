@@ -27,9 +27,10 @@ def raster_read(latitude, longitude):
             rowIndex, colIndex = raster_data.index(longitude, latitude)
             try:
                 pixel_value = raster_value[rowIndex, colIndex]
+                raster_data = {'raster_name': file, 'depth': int(pixel_value)}
+                outputs.append(raster_data)
             except IndexError:
-                pixel_value = None
-            outputs.append({'raster_name': file, 'depth': int(pixel_value)})
+                outputs = []
     return outputs
 
 
@@ -55,10 +56,9 @@ class Output(Resource):
         if latitude is None:
             abort(404, description="Address is unrecognizable")
         #catch error 2 AttributeError: 'NoneType' object has no attribute 'latitude'
-        file_name, pixel_value = raster_read(latitude=latitude, longitude=longitude)
         raster_output = raster_read(latitude=latitude, longitude=longitude)
         #catch error 1 index IndexError: index -5048 is out of bounds for axis 0 with size 3601
-        if pixel_value is None:
+        if not raster_output:
             abort(404, description="address is out of range for raster image uploaded")
         output = {'data': {'address': address,
                            # 'raster_path': raster_path,
