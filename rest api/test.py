@@ -18,23 +18,24 @@ def address_to_latlon(location):
 def raster_read(latitude, longitude):
     # add looping for files end with tif, return raster path and pixel value might have many raster file
     files = glob.glob('./*.tif')
+    outputs = []
     for file in files:
         # open the raster file
-        raster_data = rio.open(file)
+        with rio.open(file) as raster_data:
         # read first band
-        raster_value = raster_data.read(1)
-        rowIndex, colIndex = raster_data.index(longitude, latitude)
-        try:
-            pixel_value = raster_value[rowIndex, colIndex]
-        except IndexError:
-            pixel_value = None
-        return file, pixel_value
+            raster_value = raster_data.read(1)
+            rowIndex, colIndex = raster_data.index(longitude, latitude)
+            try:
+                pixel_value = raster_value[rowIndex, colIndex]
+            except IndexError:
+                pixel_value = None
+            outputs.append({'raster_name': file, 'depth': int(pixel_value)})
+    return outputs
 
 
 
 app = Flask(__name__)
 api = Api(app)
-
 
 
 input_post_args = reqparse.RequestParser()
@@ -55,15 +56,15 @@ class Output(Resource):
             abort(404, description="Address is unrecognizable")
         #catch error 2 AttributeError: 'NoneType' object has no attribute 'latitude'
         file_name, pixel_value = raster_read(latitude=latitude, longitude=longitude)
+        raster_output = raster_read(latitude=latitude, longitude=longitude)
         #catch error 1 index IndexError: index -5048 is out of bounds for axis 0 with size 3601
         if pixel_value is None:
             abort(404, description="address is out of range for raster image uploaded")
         output = {'data': {'address': address,
                            # 'raster_path': raster_path,
                            'latitude': latitude,
-                           'longitude': longitude,
-                           'pixel_value': int(pixel_value),
-                           'raster file': file_name}}
+                           'longitude': longitude,},
+                  'raster_output': raster_output}
 
         return jsonify(output)
 
