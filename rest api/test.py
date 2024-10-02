@@ -24,9 +24,8 @@ def raster_read(latitude, longitude):
     #might change read file function
     # add looping for files end with tif, return raster path and pixel value might have many raster file
 
-
     raster_folder = config['raster_folder']
-
+    print(raster_folder)
     files = glob.glob(f'{raster_folder}/*.tif')
 
     outputs = []
