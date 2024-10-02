@@ -3,6 +3,7 @@ from flask_restful import Api, Resource, reqparse
 from geopy.geocoders import Nominatim
 import rasterio as rio
 import glob
+import json
 
 
 def address_to_latlon(location):
@@ -15,11 +16,19 @@ def address_to_latlon(location):
 
     return data
 
+#load config
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
 def raster_read(latitude, longitude):
     #might change read file function
     # add looping for files end with tif, return raster path and pixel value might have many raster file
-    files = glob.glob('./raster_files/*.tif')
-    #need to put tif files in same folder as the py file
+
+
+    raster_folder = config['raster_folder']
+
+    files = glob.glob(f'{raster_folder}/*.tif')
+
     outputs = []
     for file in files:
         # open the raster file
