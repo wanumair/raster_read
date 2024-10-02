@@ -16,8 +16,10 @@ def address_to_latlon(location):
     return data
 
 def raster_read(latitude, longitude):
+    #might change read file function
     # add looping for files end with tif, return raster path and pixel value might have many raster file
     files = glob.glob('./*.tif')
+    #need to put tif files in same folder as the py file
     outputs = []
     for file in files:
         # open the raster file
@@ -27,6 +29,7 @@ def raster_read(latitude, longitude):
             rowIndex, colIndex = raster_data.index(longitude, latitude)
             try:
                 pixel_value = raster_value[rowIndex, colIndex]
+                #change to more dynamic(depth)
                 raster_data = {'raster_name': file, 'depth': int(pixel_value)}
                 outputs.append(raster_data)
             except IndexError:
@@ -46,7 +49,7 @@ input_post_args.add_argument("address", type=str, help='address is needed', requ
 
 class Output(Resource):
     def get(self):
-        return {'data': {'message': 'no output for this method'}}
+        return {'data': {'message': 'no output for this method'}}, 200
 
     def post(self):
         args = input_post_args.parse_args()
@@ -59,7 +62,7 @@ class Output(Resource):
         raster_output = raster_read(latitude=latitude, longitude=longitude)
         #catch error 1 index IndexError: index -5048 is out of bounds for axis 0 with size 3601
         if not raster_output:
-            abort(404, description="address is out of range for raster image uploaded")
+            abort(404, description="address is out of range for raster image")
         output = {'data': {'address': address,
                            # 'raster_path': raster_path,
                            'latitude': latitude,
