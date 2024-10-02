@@ -18,7 +18,7 @@ def address_to_latlon(location):
 def raster_read(latitude, longitude):
     #might change read file function
     # add looping for files end with tif, return raster path and pixel value might have many raster file
-    files = glob.glob('./*.tif')
+    files = glob.glob('./raster_files/*.tif')
     #need to put tif files in same folder as the py file
     outputs = []
     for file in files:
